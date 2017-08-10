@@ -1,0 +1,7 @@
+cmake .. -DEIGEN3_DIR=/d/eigen/ -DN3L_DIR=/d/N3LDG
+
+-l -train data\ctb50\train.corpus -dev data\ctb50\train.corpus -test data\ctb50\test.corpus -option data\option.debug
+-l -train data\ctb50\train.corpus -dev data\ctb50\dev.corpus -test data\ctb50\test.corpus -option data\option.debug
+
+-l -train data\train.faked -dev data\train.corpus -test data\test.faked -option option.lstm16
+-l -train data\train.corpus -dev data\train.corpus -test data\test.corpus -option option.lstm16
