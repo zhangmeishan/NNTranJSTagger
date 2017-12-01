@@ -4,4 +4,4 @@ include_directories(
 )
 
 add_subdirectory(NNJSTagger)
-
+#add_subdirectory(VocabExtractor)

@@ -32,7 +32,7 @@ class Options {
     int wordStateSize;
     int charStateSize;
     int stateHiddenSize;
-    int appHiddenSize;
+    int startBeam;
 
     int wordEmbSize;
     int lengthEmbSize;
@@ -56,11 +56,11 @@ class Options {
     string charEmbFile;
     string bicharEmbFile;
 
-    string mapFile;
+    string ngramEmbFile;
     string wordFile;
 
     int tagEmbSize;
-    int tagNgram;
+    int ngramEmbSize;
     int tagStateSize;
     int tagRNNHiddenSize;
 
@@ -78,10 +78,10 @@ class Options {
     int base;
 
     Options() {
-        wordCutOff = 0;
+        wordCutOff = 3;
         featCutOff = 0;
-        charCutOff = 0;
-        bicharCutOff = 0;
+        charCutOff = 1;
+        bicharCutOff = 1;
         initRange = 0.01;
         maxIter = 1000;
         batchSize = 1;
@@ -89,43 +89,43 @@ class Options {
         adaAlpha = 0.01;
         regParameter = 1e-8;
         dropProb = -1;
-        delta = 0.2;
+        delta = 0.0;
         clip = -1.0;
         rpRatio = 0.05;
         beam = 16;
 
-        wordStateSize = 100;
+        wordStateSize = 200;
         charStateSize = 200;
         stateHiddenSize = 200;
-        appHiddenSize = 150;
+        startBeam = 1000;
 
-        wordEmbSize = 50;
+        wordEmbSize = 200;
         lengthEmbSize = 20;
         wordNgram = 2;
-        wordHiddenSize = 150;
-        wordRNNHiddenSize = 100;
-        wordEmbFineTune = false;
-        wordEmbNormalize = true;
+        wordHiddenSize = 200;
+        wordRNNHiddenSize = 200;
+        wordEmbFineTune = true;
+        wordEmbNormalize = false;
         wordEmbFile = "";
 
-        charEmbSize = 50;
+        charEmbSize = 200;
         charTypeEmbSize = 20;
-        bicharEmbSize = 50;
+        bicharEmbSize = 200;
         charcontext = 2;
-        charHiddenSize = 100;
-        charRNNHiddenSize = 100;
-        charEmbFineTune = false;
-        charEmbNormalize = true;
-        bicharEmbFineTune = false;
-        bicharEmbNormalize = true;
+        charHiddenSize = 200;
+        charRNNHiddenSize = 200;
+        charEmbFineTune = true;
+        charEmbNormalize = false;
+        bicharEmbFineTune = true;
+        bicharEmbNormalize = false;
         charEmbFile = "";
         bicharEmbFile = "";
 
-        mapFile = "";
+        ngramEmbFile = "";
         wordFile = "";
 
-        tagEmbSize = 50;
-        tagNgram = 2;
+        tagEmbSize = 100;
+        ngramEmbSize = 2;
         tagStateSize = 100;
         tagRNNHiddenSize = 100;
 
@@ -189,8 +189,8 @@ class Options {
                 charStateSize = atoi(pr.second.c_str());
             if (pr.first == "stateHiddenSize")
                 stateHiddenSize = atoi(pr.second.c_str());
-            if (pr.first == "appHiddenSize")
-                appHiddenSize = atoi(pr.second.c_str());
+            if (pr.first == "startBeam")
+                startBeam = atoi(pr.second.c_str());
 
             if (pr.first == "wordEmbSize")
                 wordEmbSize = atoi(pr.second.c_str());
@@ -234,15 +234,15 @@ class Options {
             if (pr.first == "bicharEmbFile")
                 bicharEmbFile = pr.second;
 
-            if (pr.first == "mapFile")
-                mapFile = pr.second;
+            if (pr.first == "ngramEmbFile")
+                ngramEmbFile = pr.second;
             if (pr.first == "wordFile")
                 wordFile = pr.second;
 
             if (pr.first == "tagEmbSize")
                 tagEmbSize = atoi(pr.second.c_str());
-            if (pr.first == "tagNgram")
-                tagNgram = atoi(pr.second.c_str());
+            if (pr.first == "ngramEmbSize")
+                ngramEmbSize = atoi(pr.second.c_str());
             if (pr.first == "tagStateSize")
                 tagStateSize = atoi(pr.second.c_str());
             if (pr.first == "tagRNNHiddenSize")
@@ -276,6 +276,8 @@ class Options {
     }
 
     void showOptions() {
+        std::cout << std::endl;
+        std::cout << "show options" << std::endl;
         std::cout << "wordCutOff = " << wordCutOff << std::endl;
         std::cout << "featCutOff = " << featCutOff << std::endl;
         std::cout << "charCutOff = " << charCutOff << std::endl;
@@ -295,7 +297,7 @@ class Options {
         std::cout << "wordStateSize = " << wordStateSize << std::endl;
         std::cout << "charStateSize = " << charStateSize << std::endl;
         std::cout << "stateHiddenSize = " << stateHiddenSize << std::endl;
-        std::cout << "appHiddenSize = " << appHiddenSize << std::endl;
+        std::cout << "startBeam = " << startBeam << std::endl;
 
         std::cout << "wordEmbSize = " << wordEmbSize << std::endl;
         std::cout << "lengthEmbSize = " << lengthEmbSize << std::endl;
@@ -319,11 +321,11 @@ class Options {
         std::cout << "charEmbFile = " << charEmbFile << std::endl;
         std::cout << "bicharEmbFile = " << bicharEmbFile << std::endl;
 
-        std::cout << "mapFile = " << mapFile << std::endl;
+        std::cout << "ngramEmbFile = " << ngramEmbFile << std::endl;
         std::cout << "wordFile = " << wordFile << std::endl;
 
         std::cout << "tagEmbSize = " << tagEmbSize << std::endl;
-        std::cout << "tagNgram = " << tagNgram << std::endl;
+        std::cout << "ngramEmbSize = " << ngramEmbSize << std::endl;
         std::cout << "tagStateSize = " << tagStateSize << std::endl;
         std::cout << "tagRNNHiddenSize = " << tagRNNHiddenSize << std::endl;
 
@@ -341,6 +343,8 @@ class Options {
         }
         std::cout << "outBest = " << outBest << std::endl;
         std::cout << "base = " << base << std::endl;
+
+        std::cout << std::endl;
     }
 
     void load(const std::string& infile) {

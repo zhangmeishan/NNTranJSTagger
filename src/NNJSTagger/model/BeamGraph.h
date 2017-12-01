@@ -99,7 +99,7 @@ class BeamGraphBuilder {
             for (int idx = 0; idx < lastStates.size(); idx++) {
                 pGenerator = lastStates[idx];
                 pGenerator->getCandidateActions(actions[idx], pOpts);
-                pGenerator->computeNextScore(pcg, actions[idx]);
+                pGenerator->computeNextScore(pcg, actions[idx], false);
             }
 
             pcg->compute(); //must compute here, or we can not obtain the scores
@@ -122,8 +122,8 @@ class BeamGraphBuilder {
                     } else {
                         scored_action.bGold = false;
                         output.bGold = false;
-                        if (pcg->train)pGenerator->_nextscores.outputs[idy].val[0] += pOpts->delta;
                     }
+                    if (pcg->train && actions[idx][idy] != answer)pGenerator->_nextscores.outputs[idy].val[0] += pOpts->delta;
                     scored_action.score = pGenerator->_nextscores.outputs[idy].val[0];
                     scored_action.position = idy;
                     output.in = &(pGenerator->_nextscores.outputs[idy]);

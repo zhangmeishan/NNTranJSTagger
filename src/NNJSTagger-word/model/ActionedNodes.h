@@ -14,6 +14,7 @@
 
 struct ActionedNodes {
     LookupNode last_tag_input;
+    LookupNode last_word_input;
     ConcatNode word_concat;
     UniNode word_represent;
     IncLSTM1Builder word_lstm;
@@ -39,6 +40,8 @@ struct ActionedNodes {
     inline void initial(ModelParams& params, HyperParams& hyparams) {
         last_tag_input.setParam(&(params.tag_table));
         last_tag_input.init(hyparams.tag_dim, hyparams.dropProb);
+        last_word_input.setParam(&(params.ext_word_table));
+        last_word_input.init(hyparams.word_dim, hyparams.dropProb);
         word_concat.init(hyparams.word_concat_dim, -1);
         word_represent.setParam(&(params.word_represent));
         word_represent.init(hyparams.word_represent_dim, -1);
@@ -122,6 +125,8 @@ struct ActionedNodes {
         last_tag_input.forward(cg, atomFeat.str_tag);
         word_components.push_back(&last_tag_input);
 
+        last_word_input.forward(cg, atomFeat.str_word);
+        word_components.push_back(&last_word_input);
 
         if (word_included_char_num > 0) {
             word_components.push_back(&char_span_repsent_left);

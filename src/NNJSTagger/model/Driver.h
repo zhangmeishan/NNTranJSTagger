@@ -39,6 +39,7 @@ class Driver {
 
     Metric _eval;
     ModelUpdate _ada;  // model update
+    ModelUpdate _beam_ada;  // model update
 
     int _batch;
     bool _useBeam;
@@ -61,8 +62,14 @@ class Driver {
         _greedy_builders.resize(_hyperparams.batch);
         _decode_cgs.resize(_hyperparams.batch);
 
+        dtype dropout_value = _hyperparams.dropProb;
+        _hyperparams.dropProb = -1.0;
         for (int idx = 0; idx < _hyperparams.batch; idx++) {
             _beam_builders[idx].initial(_modelparams, _hyperparams);
+        }
+
+        _hyperparams.dropProb = dropout_value;
+        for (int idx = 0; idx < _hyperparams.batch; idx++) {
             _greedy_builders[idx].initial(_modelparams, _hyperparams);
         }
 
@@ -89,7 +96,7 @@ class Driver {
             }
             _cg.compute();
 
-            #pragma omp parallel for schedule(static,1)
+//           #pragma omp parallel for schedule(static,1)
             for (int idx = 0; idx < num; idx++) {
                 _decode_cgs[idx].clearValue(true);
                 _beam_builders[idx].decode(&(_decode_cgs[idx]), &sentences[idx], &goldACs[idx]);
@@ -110,7 +117,7 @@ class Driver {
                 _greedy_builders[idx].encode(&_cg, &sentences[idx]);
             }
             _cg.compute();
-            #pragma omp parallel for schedule(static,1)
+//            #pragma omp parallel for schedule(static,1)
             for (int idx = 0; idx < num; idx++) {
                 _decode_cgs[idx].clearValue(true);
                 _greedy_builders[idx].decode(&(_decode_cgs[idx]), &sentences[idx], &goldACs[idx]);
@@ -125,59 +132,68 @@ class Driver {
 
     void decode(const std::vector<std::vector<string> >& sentences, vector<vector<string> >& seg_results, vector<vector<string> >& tag_results) {
         int num = sentences.size();
-		if (_useBeam) {
-			if (num > _beam_builders.size()) {
-				std::cout << "input example number is larger than predefined batch number" << std::endl;
-				return;
-			}
-			_cg.clearValue();
-			for (int idx = 0; idx < num; idx++) {
-				_beam_builders[idx].encode(&_cg, &sentences[idx]);
-			}
-			_cg.compute();
+        if (_useBeam) {
+            if (num > _beam_builders.size()) {
+                std::cout << "input example number is larger than predefined batch number" << std::endl;
+                return;
+            }
+            _cg.clearValue();
+            for (int idx = 0; idx < num; idx++) {
+                _beam_builders[idx].encode(&_cg, &sentences[idx]);
+            }
+            _cg.compute();
 
-			seg_results.resize(num);
-			tag_results.resize(num);
-#pragma omp parallel for schedule(static,1)
-			for (int idx = 0; idx < num; idx++) {
-				_decode_cgs[idx].clearValue();
-				_beam_builders[idx].decode(&(_decode_cgs[idx]), &sentences[idx]);
-				int step = _beam_builders[idx].outputs.size();
-				_beam_builders[idx].states[step - 1][0].getResults(seg_results[idx], tag_results[idx], &_hyperparams);
-			}
-		}
-		else {
-			if (num > _greedy_builders.size()) {
-				std::cout << "input example number is larger than predefined batch number" << std::endl;
-				return;
-			}
-			_cg.clearValue();
-			for (int idx = 0; idx < num; idx++) {
-				_greedy_builders[idx].encode(&_cg, &sentences[idx]);
-			}
-			_cg.compute();
+            seg_results.resize(num);
+            tag_results.resize(num);
+//            #pragma omp parallel for schedule(static,1)
+            for (int idx = 0; idx < num; idx++) {
+                _decode_cgs[idx].clearValue();
+                _beam_builders[idx].decode(&(_decode_cgs[idx]), &sentences[idx]);
+                int step = _beam_builders[idx].outputs.size();
+                _beam_builders[idx].states[step - 1][0].getResults(seg_results[idx], tag_results[idx], &_hyperparams);
+            }
+        } else {
+            if (num > _greedy_builders.size()) {
+                std::cout << "input example number is larger than predefined batch number" << std::endl;
+                return;
+            }
+            _cg.clearValue();
+            for (int idx = 0; idx < num; idx++) {
+                _greedy_builders[idx].encode(&_cg, &sentences[idx]);
+            }
+            _cg.compute();
 
-			seg_results.resize(num);
-			tag_results.resize(num);
-#pragma omp parallel for schedule(static,1)
-			for (int idx = 0; idx < num; idx++) {
-				_decode_cgs[idx].clearValue();
-				_greedy_builders[idx].decode(&(_decode_cgs[idx]), &sentences[idx]);
-				int step = _greedy_builders[idx].outputs.size();
-				_greedy_builders[idx].states[step - 1].getResults(seg_results[idx], tag_results[idx], &_hyperparams);
-			}
-		}
+            seg_results.resize(num);
+            tag_results.resize(num);
+//            #pragma omp parallel for schedule(static,1)
+            for (int idx = 0; idx < num; idx++) {
+                _decode_cgs[idx].clearValue();
+                _greedy_builders[idx].decode(&(_decode_cgs[idx]), &sentences[idx]);
+                int step = _greedy_builders[idx].outputs.size();
+                _greedy_builders[idx].states[step - 1].getResults(seg_results[idx], tag_results[idx], &_hyperparams);
+            }
+        }
     }
 
     void updateModel() {
-        if (_batch <= 0) return;
-        if (_ada._params.empty()) {
-            _modelparams.exportModelParams(_ada);
+        //if (_batch <= 0) return;
+        if (!_useBeam) {
+            if (_ada._params.empty()) {
+                _modelparams.exportModelParams(_ada);
+            }
+            //_ada.rescaleGrad(1.0 / _batch);
+            //_ada.update(10);
+            _ada.updateAdam(_clip);
+            _batch = 0;
+        } else {
+            if (_beam_ada._params.empty()) {
+                _modelparams.exportModelBeamParams(_beam_ada);
+            }
+            //_beam_ada.rescaleGrad(1.0 / _batch);
+            //_beam_ada.update(10);
+            _beam_ada.updateAdam(_clip);
+            _batch = 0;
         }
-        //_ada.rescaleGrad(1.0 / _batch);
-		_ada.update(10);
-        //_ada.updateAdam(_clip);
-        _batch = 0;
     }
 
     void writeModel();
@@ -263,7 +279,7 @@ class Driver {
         vector<dtype> scores;
         dtype cost = 0.0;
 
-        for (int step = 0; step < maxstep; step++) {
+        for (int step = maxstep-1; step < maxstep; step++) {
             curcount = builder.outputs[step].size();
             if (curcount == 1) {
                 _eval.correct_label_count++;
@@ -322,6 +338,10 @@ class Driver {
         _ada._alpha = adaAlpha;
         _ada._eps = adaEps;
         _ada._reg = nnRegular;
+
+        _beam_ada._alpha = adaAlpha * 0.1;
+        _beam_ada._eps = adaEps;
+        _beam_ada._reg = nnRegular;
     }
 
     //useBeam = true, beam searcher

@@ -102,6 +102,16 @@ int JSTagger::createAlphabet(const vector<Instance>& vecInsts) {
 	m_driver._modelparams.embeded_bichars.initial(bichar_stat, m_options.bicharCutOff);
 	std::cout << "fine tuned bichar vocabulary size: " << m_driver._modelparams.embeded_bichars.size() << std::endl;
 
+	//word
+	if (m_options.wordEmbFile != "") {
+		m_driver._modelparams.ext_embeded_words.initial(m_options.wordEmbFile);
+		std::cout << "Embedding word file vocabulary size: " << m_driver._modelparams.ext_embeded_words.size() << std::endl;
+	}
+	else {
+		std::cout << "word embedding file not specified." << std::endl;
+		exit(0);
+	}
+
 	//pos tags
 	unordered_map<string, int> postag_stat;
 	for (int idx = 0; idx < m_driver._hyperparams.postags.size(); idx++) {
@@ -249,6 +259,20 @@ void JSTagger::train(const string& trainFile, const string& devFile, const strin
 		std::cout << "bichar embedding file not specified." << std::endl;
 		exit(0);
 	}
+
+	initial_successed = false;
+	if (m_options.wordEmbFile != "") {
+		initial_successed = m_driver._modelparams.ext_word_table.initial(&m_driver._modelparams.ext_embeded_words, m_options.wordEmbFile, false, false);
+		if (initial_successed) {
+			m_options.wordEmbSize = m_driver._modelparams.ext_word_table.nDim;
+		}
+	}
+	else {
+		std::cout << "bichar embedding file not specified." << std::endl;
+		exit(0);
+	}
+
+
 	m_driver._modelparams.char_table.initial(&m_driver._modelparams.embeded_chars, m_options.charEmbSize, true);
 	m_driver._modelparams.bichar_table.initial(&m_driver._modelparams.embeded_bichars, m_options.bicharEmbSize, true);
 	m_driver._modelparams.tag_table.initial(&m_driver._modelparams.embeded_tags, m_options.tagEmbSize, true);
@@ -256,7 +280,6 @@ void JSTagger::train(const string& trainFile, const string& devFile, const strin
 
     m_driver._hyperparams.setRequared(m_options);
     m_driver.initial();
-	m_driver.setGraph(false);
 
     vector<vector<CAction> > trainInstGoldactions;
     getGoldActions(trainInsts, trainInstGoldactions);
@@ -287,10 +310,6 @@ void JSTagger::train(const string& trainFile, const string& devFile, const strin
         cout << "##### Iteration " << iter << std::endl;
         srand(iter);
         bool bEvaluate = false;
-
-		if (iter >= m_options.startBeam) {
-			m_driver.setGraph(true);
-		}
 
         if (m_options.batchSize == 1) {
             auto t_start_train = std::chrono::high_resolution_clock::now();
@@ -507,7 +526,7 @@ int main(int argc, char* argv[]) {
     std::string outputFile = "";
     bool bTrain = false;
     dsr::Argument_helper ah;
-    int threads = -1;
+//    int threads = 2;
 
 
     ah.new_flag("l", "learn", "train or test", bTrain);
@@ -519,17 +538,11 @@ int main(int argc, char* argv[]) {
     ah.new_named_string("word", "wordEmbFile", "named_string", "pretrained word embedding file to train a model, optional when training", wordEmbFile);
     ah.new_named_string("option", "optionFile", "named_string", "option file to train a model, optional when training", optionFile);
     ah.new_named_string("output", "outputFile", "named_string", "output file to test, must when testing", outputFile);
-    ah.new_named_int("th", "thread", "named_int", "number of threads for openmp", threads);
+//    ah.new_named_int("th", "thread", "named_int", "number of threads for openmp", threads);
 
     ah.process(argc, argv);
 
-	omp_set_dynamic(0);
-	if (threads > 0) {
-		omp_set_num_threads(threads);
-	}
-	else {
-		omp_set_num_threads(1);
-	}
+//  omp_set_num_threads(threads);
 
     JSTagger tagger;
     if (bTrain) {

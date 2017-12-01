@@ -32,6 +32,7 @@ struct HyperParams {
 
 
     int tag_dim;  // must tune
+    int word_dim;
     int word_concat_dim;
     int word_represent_dim;
     int word_lstm_dim;
@@ -71,8 +72,9 @@ struct HyperParams {
         char_lstm_dim = opt.charRNNHiddenSize;
 
 
+        word_dim = opt.wordEmbSize;
         tag_dim = opt.tagEmbSize;
-        word_concat_dim = tag_dim + 2 * char_lstm_dim;
+        word_concat_dim = tag_dim + word_dim + 2 * char_lstm_dim;
         word_represent_dim = opt.wordHiddenSize;
         word_lstm_dim = opt.wordRNNHiddenSize;
 
@@ -111,6 +113,7 @@ struct HyperParams {
         std::cout << "char_hidden_dim = " << char_hidden_dim << std::endl;
         std::cout << "char_lstm_dim = " << char_lstm_dim << std::endl;
 
+        std::cout << "word_dim = " << word_dim << std::endl;
         std::cout << "tag_dim = " << tag_dim << std::endl;
         std::cout << "word_concat_dim = " << word_concat_dim << std::endl;
         std::cout << "word_represent_dim = " << word_represent_dim << std::endl;

@@ -9,6 +9,8 @@ class ModelParams {
     LookupTable ext_char_table; // should be initialized outside
     Alphabet ext_embeded_bichars; // chars
     LookupTable ext_bichar_table; // should be initialized outside
+    Alphabet ext_embeded_words; // words
+    LookupTable ext_word_table; // should be initialized outside
 
     //neural parameters
     Alphabet embeded_chars; // chars
@@ -67,26 +69,6 @@ class ModelParams {
 
         scored_action_table.exportAdaParams(ada);
     }
-
-    void exportModelBeamParams(ModelUpdate& ada) {
-        /*
-        char_table.exportAdaParams(ada);
-        bichar_table.exportAdaParams(ada);
-        tag_table.exportAdaParams(ada);
-
-        char_tanh_conv.exportAdaParams(ada);
-        char_left_lstm.exportAdaParams(ada);
-        char_right_lstm.exportAdaParams(ada);
-
-        word_represent.exportAdaParams(ada);
-        word_lstm.exportAdaParams(ada);
-
-        state_represent.exportAdaParams(ada);
-
-        */
-        scored_action_table.exportAdaParams(ada);
-    }
-
 
     // will add it later
     void saveModel() {
