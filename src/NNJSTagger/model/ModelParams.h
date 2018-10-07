@@ -5,16 +5,21 @@
 // Each model consists of two parts, building neural graph and defining output losses.
 class ModelParams {
   public:
+    //neural parameters
+    Alphabet embeded_chars; // chars
+    LookupTable char_table; // should be initialized outside
     Alphabet ext_embeded_chars; // chars
     LookupTable ext_char_table; // should be initialized outside
+    Alphabet embeded_bichars; // chars
+    LookupTable bichar_table; // should be initialized outside
     Alphabet ext_embeded_bichars; // chars
     LookupTable ext_bichar_table; // should be initialized outside
 
     //neural parameters
-    Alphabet embeded_chars; // chars
-    LookupTable char_table; // should be initialized outside
-    Alphabet embeded_bichars; // chars
-    LookupTable bichar_table; // should be initialized outside
+    Alphabet embeded_chartypes; // chars
+    LookupTable chartype_table; // should be initialized outside
+    Alphabet embeded_wordlens; // chars
+    LookupTable wordlen_table; // should be initialized outside
 
     Alphabet embeded_tags; // tags
     LookupTable tag_table; // should be initialized outside
@@ -53,8 +58,10 @@ class ModelParams {
 
     void exportModelParams(ModelUpdate& ada) {
         char_table.exportAdaParams(ada);
+        chartype_table.exportAdaParams(ada);
         bichar_table.exportAdaParams(ada);
         tag_table.exportAdaParams(ada);
+        wordlen_table.exportAdaParams(ada);
 
         char_tanh_conv.exportAdaParams(ada);
         char_left_lstm.exportAdaParams(ada);
@@ -68,24 +75,6 @@ class ModelParams {
         scored_action_table.exportAdaParams(ada);
     }
 
-    void exportModelBeamParams(ModelUpdate& ada) {
-        /*
-        char_table.exportAdaParams(ada);
-        bichar_table.exportAdaParams(ada);
-        tag_table.exportAdaParams(ada);
-
-        char_tanh_conv.exportAdaParams(ada);
-        char_left_lstm.exportAdaParams(ada);
-        char_right_lstm.exportAdaParams(ada);
-
-        word_represent.exportAdaParams(ada);
-        word_lstm.exportAdaParams(ada);
-
-        state_represent.exportAdaParams(ada);
-
-        */
-        scored_action_table.exportAdaParams(ada);
-    }
 
 
     // will add it later

@@ -14,6 +14,18 @@ class GreedyGraphBuilder {
     vector<CStateItem> states;
     vector<vector<COutput> > outputs;
 
+    CStateItem* pGenerator;
+    int step, offset;
+    vector<CAction> actions; // actions to apply for a candidate
+    CScoredState scored_action; // used rank actions
+    COutput output;
+    bool correct_action_scored;
+    bool correct_in_beam;
+    CAction answer, action;
+    vector<COutput> per_step_output;
+    NRHeap<CScoredState, CScoredState_Compare> beam;
+    bool is_finish;
+
   private:
     ModelParams *pModel;
     HyperParams *pOpts;
@@ -60,36 +72,34 @@ class GreedyGraphBuilder {
         globalNodes.forward(pcg, pCharacters);
     }
 
+
   public:
-    // some nodes may behave different during training and decode, for example, dropout
-    inline void decode(Graph* pcg, const std::vector<std::string>* pCharacters, const vector<CAction>* goldAC = NULL) {
-        //first step, clear node values
+    inline void decode_prepare(const std::vector<std::string>* pCharacters) {
         clearVec(outputs);
-
         //second step, build graph
-        CStateItem* pGenerator;
-        int step, offset;
-        vector<CAction> actions; // actions to apply for a candidate
-        CScoredState scored_action; // used rank actions
-        COutput output;
-        bool correct_action_scored;
-        bool correct_in_beam;
-        CAction answer, action;
-        vector<COutput> per_step_output;
-        NRHeap<CScoredState, CScoredState_Compare> beam;
         beam.resize(pOpts->action_num + 1);
-
         start.setInput(pCharacters);
         pGenerator = &start;
+        step = 0, offset = 0;
+        is_finish = false;
 
-        step = 0;
-        while (true) {
-            //prepare for the next
+        actions.clear(); // actions to apply for a candidate
+        correct_action_scored = false;
+        correct_in_beam = false;
+        per_step_output.clear();
+    }
+
+    inline void decode_forward(Graph* pcg, const std::vector<std::string>* pCharacters, const vector<CAction>* goldAC = NULL) {
+        if (!is_finish) {
             pGenerator->prepare(pOpts, pModel, &globalNodes);
             pGenerator->getCandidateActions(actions, pOpts);
             pGenerator->computeNextScore(pcg, actions, true);
-            pcg->compute();
+        }
+    }
 
+    inline void decode_apply_action(Graph* pcg, const std::vector<std::string>* pCharacters, const vector<CAction>* goldAC = NULL) {
+        // training apply gold oralce, predicting apply predict oralce
+        if (!is_finish) {
             answer.clear();
             per_step_output.clear();
             correct_action_scored = false;
@@ -105,8 +115,8 @@ class GreedyGraphBuilder {
                 } else {
                     scored_action.bGold = false;
                     output.bGold = false;
+                    if (pcg->train)pGenerator->_nextscores.outputs[idy].val[0] += pOpts->delta;
                 }
-                if (pcg->train)pGenerator->_nextscores.outputs[idy].val[0] += pOpts->delta;
                 scored_action.score = pGenerator->_nextscores.outputs[idy].val[0];
                 scored_action.position = idy;
                 output.in = &(pGenerator->_nextscores.outputs[idy]);
@@ -160,13 +170,10 @@ class GreedyGraphBuilder {
             }
             pGenerator = &(states[step]);
             if (states[step].IsTerminated()) {
-                break;
+                is_finish = true;
             }
-
             step++;
         }
-
-        return;
     }
 
 };

@@ -13,6 +13,7 @@
 struct GlobalNodes {
     vector<LookupNode> char_inputs;
     vector<LookupNode> ext_char_inputs;
+    vector<LookupNode> chartype_inputs;
     vector<LookupNode> bichar_inputs;
     vector<LookupNode> ext_bichar_inputs;
     LookupNode bichar_start_input, bichar_end_input;
@@ -30,6 +31,7 @@ struct GlobalNodes {
         ext_char_inputs.resize(max_sentence_length);
         bichar_inputs.resize(max_sentence_length);
         ext_bichar_inputs.resize(max_sentence_length);
+        chartype_inputs.resize(max_sentence_length);
         char_left_represents.resize(max_sentence_length);
         char_right_represents.resize(max_sentence_length);
         char_left_conv.resize(max_sentence_length);
@@ -46,6 +48,7 @@ struct GlobalNodes {
             bichar_inputs[idx].setParam(&params.bichar_table);
             ext_char_inputs[idx].setParam(&params.ext_char_table);
             ext_bichar_inputs[idx].setParam(&params.ext_bichar_table);
+            chartype_inputs[idx].setParam(&params.chartype_table);
             char_left_conv[idx].setParam(&params.char_tanh_conv);
             char_right_conv[idx].setParam(&params.char_tanh_conv);
         }
@@ -62,6 +65,7 @@ struct GlobalNodes {
             bichar_inputs[idx].init(hyparams.bichar_dim, hyparams.dropProb);
             ext_char_inputs[idx].init(hyparams.char_dim, hyparams.dropProb);
             ext_bichar_inputs[idx].init(hyparams.bichar_dim, hyparams.dropProb);
+            chartype_inputs[idx].init(hyparams.chartype_dim, hyparams.dropProb);
             char_left_represents[idx].init(hyparams.char_concat_dim, -1);
             char_right_represents[idx].init(hyparams.char_concat_dim, -1);
             char_left_conv[idx].init(hyparams.char_hidden_dim, hyparams.dropProb);
@@ -79,11 +83,14 @@ struct GlobalNodes {
   public:
     inline void forward(Graph* cg, const std::vector<std::string>* pCharacters) {
         int char_size = pCharacters->size();
-        string unichar, biChar;
+        string unichar, biChar, chartype;
         for (int idx = 0; idx < char_size; idx++) {
             unichar = (*pCharacters)[idx];
             char_inputs[idx].forward(cg, unichar);
             ext_char_inputs[idx].forward(cg, unichar);
+
+            chartype = wordtype(unichar);
+            chartype_inputs[idx].forward(cg, chartype);
 
             if (idx < char_size - 1) {
                 biChar = (*pCharacters)[idx] + (*pCharacters)[idx + 1];
@@ -99,18 +106,18 @@ struct GlobalNodes {
 
         for (int idx = 0; idx < char_size; idx++) {
             if (idx == 0) {
-                char_left_represents[idx].forward(cg, &(char_inputs[idx]), &bichar_start_input, &(ext_char_inputs[idx]), &ext_bichar_start_input);
+                char_left_represents[idx].forward(cg, &(char_inputs[idx]), &bichar_start_input, &(ext_char_inputs[idx]), &ext_bichar_start_input, &(chartype_inputs[idx]));
             } else {
-                char_left_represents[idx].forward(cg, &(char_inputs[idx]), &(bichar_inputs[idx - 1]), &(ext_char_inputs[idx]), &(ext_bichar_inputs[idx - 1]));
+                char_left_represents[idx].forward(cg, &(char_inputs[idx]), &(bichar_inputs[idx - 1]), &(ext_char_inputs[idx]), &(ext_bichar_inputs[idx - 1]), &(chartype_inputs[idx]));
             }
             char_left_conv[idx].forward(cg, &(char_left_represents[idx]));
         }
 
         for (int idx = 0; idx < char_size; idx++) {
             if (idx == char_size - 1) {
-                char_right_represents[idx].forward(cg, &(char_inputs[idx]), &bichar_end_input, &(ext_char_inputs[idx]), &ext_bichar_end_input);
+                char_right_represents[idx].forward(cg, &(char_inputs[idx]), &bichar_end_input, &(ext_char_inputs[idx]), &ext_bichar_end_input, &(chartype_inputs[idx]));
             } else {
-                char_right_represents[idx].forward(cg, &(char_inputs[idx]), &(bichar_inputs[idx]), &(ext_char_inputs[idx]), &(ext_bichar_inputs[idx]));
+                char_right_represents[idx].forward(cg, &(char_inputs[idx]), &(bichar_inputs[idx]), &(ext_char_inputs[idx]), &(ext_bichar_inputs[idx]), &(chartype_inputs[idx]));
             }
             char_right_conv[idx].forward(cg, &(char_right_represents[idx]));
         }

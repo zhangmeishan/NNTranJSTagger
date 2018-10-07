@@ -25,6 +25,7 @@ struct HyperParams {
     bool char_tune;
     int bichar_dim;
     bool bichar_tune;
+    int chartype_dim; //must tune
     int char_concat_dim;
     int char_hidden_dim;
     int char_lstm_dim;
@@ -32,6 +33,7 @@ struct HyperParams {
 
 
     int tag_dim;  // must tune
+    int length_dim;
     int word_concat_dim;
     int word_represent_dim;
     int word_lstm_dim;
@@ -66,13 +68,15 @@ struct HyperParams {
         char_tune = opt.charEmbFineTune;
         bichar_dim = opt.bicharEmbSize;
         bichar_tune = opt.bicharEmbFineTune;
-        char_concat_dim = char_dim + bichar_dim + char_dim + bichar_dim;
+        chartype_dim = opt.charTypeEmbSize;
+        char_concat_dim = char_dim + bichar_dim + char_dim + bichar_dim + chartype_dim;
         char_hidden_dim = opt.charHiddenSize;
         char_lstm_dim = opt.charRNNHiddenSize;
 
 
+        length_dim = opt.lengthEmbSize;
         tag_dim = opt.tagEmbSize;
-        word_concat_dim = tag_dim + 2 * char_lstm_dim;
+        word_concat_dim = tag_dim + length_dim + 2 * char_lstm_dim;
         word_represent_dim = opt.wordHiddenSize;
         word_lstm_dim = opt.wordRNNHiddenSize;
 
@@ -107,10 +111,12 @@ struct HyperParams {
         std::cout << "char_tune = " << char_tune << std::endl;
         std::cout << "bichar_dim = " << bichar_dim << std::endl;
         std::cout << "bichar_tune = " << bichar_tune << std::endl;
+        std::cout << "chartype_dim = " << chartype_dim << std::endl;
         std::cout << "char_concat_dim = " << char_concat_dim << std::endl;
         std::cout << "char_hidden_dim = " << char_hidden_dim << std::endl;
         std::cout << "char_lstm_dim = " << char_lstm_dim << std::endl;
 
+        std::cout << "length_dim = " << length_dim << std::endl;
         std::cout << "tag_dim = " << tag_dim << std::endl;
         std::cout << "word_concat_dim = " << word_concat_dim << std::endl;
         std::cout << "word_represent_dim = " << word_represent_dim << std::endl;
