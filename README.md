@@ -31,7 +31,14 @@ The code of [A Simple and Effective Neural Model for Joint Word Segmentation and
 | Our Model (Basic Embeddings)  | 97.93&nbsp;&nbsp;&nbsp;&nbsp;94.44 | 95.78&nbsp;&nbsp;&nbsp;&nbsp;91.79 | 95.77&nbsp;&nbsp;&nbsp;&nbsp;91.12 | 95.82&nbsp;&nbsp;&nbsp;&nbsp;93.42 | 94.52&nbsp;&nbsp;&nbsp;&nbsp;89.82 |      
 |**Our Model (Word-context Embeddings)**   | **98.50**&nbsp;&nbsp;&nbsp;&nbsp;**94.95** |**96.36**&nbsp;&nbsp;&nbsp;&nbsp;**92.51** | **96.25**&nbsp;&nbsp;&nbsp;&nbsp;**91.87** | **96.35**&nbsp;&nbsp;&nbsp;&nbsp;**94.14** | **95.30**&nbsp;&nbsp;&nbsp;&nbsp;**90.42** |      
 
+# Time
+Our advantages are not only in performance, but also in speed, the following is the time based on CTB60.
 
+| CTB60 | Sentences | Time |  
+| ------------ | ------------ | ------------ |  
+| Train | 23k | 465.41s |  
+| Devel | 2.1k | 17.74s |  
+| Test | 2.8k | 23.67s |  
 
 
 # Cite
