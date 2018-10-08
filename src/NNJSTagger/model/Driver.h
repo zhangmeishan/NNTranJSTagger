@@ -87,14 +87,14 @@ class Driver {
         for (int idx = 0; idx < num; idx++) {
             _greedy_builders[idx].decode_prepare(&sentences[idx]);
         }
-        bool decode_finish = false;
-        while (!decode_finish) {
-            decode_finish = true;
+        bool all_finish = false;
+        while (!all_finish) {
+            all_finish = true;
             for (int idx = 0; idx < num; idx++) {
                 if (!_greedy_builders[idx].is_finish)
-                    decode_finish = false;
+                    all_finish = false;
             }
-            if (!decode_finish) {
+            if (!all_finish) {
                 for (int idx = 0; idx < num; idx++) {
                     _greedy_builders[idx].decode_forward(&_dcg, &sentences[idx], &goldACs[idx]);
                 }
@@ -130,14 +130,14 @@ class Driver {
         for (int idx = 0; idx < num; idx++) {
             _greedy_builders[idx].decode_prepare(&sentences[idx]);
         }
-        bool decode_finish = false;
-        while (!decode_finish) {
-            decode_finish = true;
+        bool all_finish = false;
+        while (!all_finish) {
+            all_finish = true;
             for (int idx = 0; idx < num; idx++) {
                 if (!_greedy_builders[idx].is_finish)
-                    decode_finish = false;
+                    all_finish = false;
             }
-            if (!decode_finish) {
+            if (!all_finish) {
                 for (int idx = 0; idx < num; idx++) {
                     _greedy_builders[idx].decode_forward(&_dcg, &sentences[idx]);
                 }
