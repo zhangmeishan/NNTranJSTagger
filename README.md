@@ -38,14 +38,14 @@ If MKL is supported in your server,  modify the MKL path in CMakeLists.txt first
 | Our Model (Basic Embeddings)  | 97.93&nbsp;&nbsp;&nbsp;&nbsp;94.44 | 95.78&nbsp;&nbsp;&nbsp;&nbsp;91.79 | 95.77&nbsp;&nbsp;&nbsp;&nbsp;91.12 | 95.82&nbsp;&nbsp;&nbsp;&nbsp;93.42 | 94.52&nbsp;&nbsp;&nbsp;&nbsp;89.82 |      
 |**Our Model (Word-context Embeddings)**   | **98.50**&nbsp;&nbsp;&nbsp;&nbsp;**94.95** |**96.36**&nbsp;&nbsp;&nbsp;&nbsp;**92.51** | **96.25**&nbsp;&nbsp;&nbsp;&nbsp;**91.87** | **96.35**&nbsp;&nbsp;&nbsp;&nbsp;**94.14** | **95.30**&nbsp;&nbsp;&nbsp;&nbsp;**90.42** |      
 
-# Time
-Our advantages are not only in performance, but also in speed, the following is the time based on CTB6.
+# Speed
+Intel CPU: i7 6800k, MKL supported; GCC version 5.4.0    
 
-| CTB6 | Sentences | Time |  
-| ------------ | ------------ | ------------ |  
-| Train | 23k | 465.41s |  
-| Devel | 2.1k | 17.74s |  
-| Test | 2.8k | 23.67s |  
+| CTB6 | Sentences | Time | Speed | 
+| ------------ | ------------ | ------------ |  ------------ |  
+| Train | 23k | 465.41s | 50.3 sents/s |
+| Devel | 2.1k | 17.74s | 117.1 sents/s | 
+| Test | 2.8k | 23.67s |  118.1 sents/s | 
 
 
 # Cite
