@@ -4,7 +4,6 @@ maxInstance = -1
 verboseIter = 10
 seg = true
 dropProb = 0.25
-wordCutOff = 1
 adaAlpha = 0.001
 beam = 1
 charEmbFile = data/char.vec

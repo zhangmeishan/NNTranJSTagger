@@ -1,19 +1,26 @@
 # JointPS
-The code of [A Simple and Effective Neural Model for Joint Word Segmentation and POS Tagging](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=8351918) based on EGN3LDG.
+The code of [A Simple and Effective Neural Model for Joint Word Segmentation and POS Tagging](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=8351918).
 
 # Usage  
+
+### MKL
+If MKL is supported in your server,  modify the MKL path in CMakeLists.txt first.
+ 
+	modify "set(MKL_ROOT /opt/intel/mkl)" to "set(MKL_ROOT your_mkl_path)"
+
+### Run
+
 	mkdir build
 	cd build
-	cmake .. or cmake .. DMKL=True(if mkl is supported.)
+	cmake .. or cmake .. -DMKL=True(if mkl is supported)
 	cd ..
 	./bin/NNJSTagger -l -train data/ctb50/train.corpus -dev data/ctb50/dev.corpus -test data/ctb50/test.corpus -option data/option.debug
-	
+
 
 # Config
 	config file in ./data/option.debug
 	seg = true
 	dropProb = 0.25
-	wordCutOff = 1
 	adaAlpha = 0.001
 	charEmbFile = data/char.vec
 	bicharEmbFile = data/mini.bichar.vec
@@ -32,9 +39,9 @@ The code of [A Simple and Effective Neural Model for Joint Word Segmentation and
 |**Our Model (Word-context Embeddings)**   | **98.50**&nbsp;&nbsp;&nbsp;&nbsp;**94.95** |**96.36**&nbsp;&nbsp;&nbsp;&nbsp;**92.51** | **96.25**&nbsp;&nbsp;&nbsp;&nbsp;**91.87** | **96.35**&nbsp;&nbsp;&nbsp;&nbsp;**94.14** | **95.30**&nbsp;&nbsp;&nbsp;&nbsp;**90.42** |      
 
 # Time
-Our advantages are not only in performance, but also in speed, the following is the time based on CTB60.
+Our advantages are not only in performance, but also in speed, the following is the time based on CTB6.
 
-| CTB60 | Sentences | Time |  
+| CTB6 | Sentences | Time |  
 | ------------ | ------------ | ------------ |  
 | Train | 23k | 465.41s |  
 | Devel | 2.1k | 17.74s |  
@@ -57,3 +64,6 @@ Our advantages are not only in performance, but also in speed, the following is 
 - if you have any question, you can open a issue or email `mason.zms@gmail.com`、`yunan.hlju@gmail.com`、`bamtercelboo@{gmail.com, 163.com}`.
 
 - if you have any good suggestions, you can PR or email me.
+
+# Authors #
+Meishan Zhang, Yu Nan, Zonglin Liu
