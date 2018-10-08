@@ -1,7 +1,7 @@
 
 outBest = .debugap
 maxInstance = -1
-verboseIter = 10
+verboseIter = 1000
 seg = true
 dropProb = 0.25
 adaAlpha = 0.001
