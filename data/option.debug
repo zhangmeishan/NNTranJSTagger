@@ -3,10 +3,10 @@ outBest = .debugap
 maxInstance = -1
 verboseIter = 1000
 seg = true
-dropProb = 0.25
+#dropProb = 0.25
 adaAlpha = 0.001
 beam = 1
 charEmbFile = data/char.vec
 bicharEmbFile = data/mini.bichar.vec
-batchSize = 16
+batchSize = 1
 

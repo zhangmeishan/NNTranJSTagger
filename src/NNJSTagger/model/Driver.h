@@ -56,7 +56,6 @@ class Driver {
         _greedy_builders.resize(_hyperparams.batch);
 
 
-        _hyperparams.dropProb = _hyperparams.dropProb;
         for (int idx = 0; idx < _hyperparams.batch; idx++) {
             _greedy_builders[idx].initial(_modelparams, _hyperparams);
         }

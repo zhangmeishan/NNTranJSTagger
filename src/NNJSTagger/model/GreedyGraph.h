@@ -91,9 +91,9 @@ class GreedyGraphBuilder {
 
     inline void decode_forward(Graph* pcg, const std::vector<std::string>* pCharacters, const vector<CAction>* goldAC = NULL) {
         if (!is_finish) {
-            pGenerator->prepare(pOpts, pModel, &globalNodes);
+            pGenerator->prepare(pOpts, &globalNodes);
             pGenerator->getCandidateActions(actions, pOpts);
-            pGenerator->computeNextScore(pcg, actions, true);
+            pGenerator->computeNextScore(pcg, actions);
         }
     }
 

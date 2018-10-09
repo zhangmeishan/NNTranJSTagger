@@ -287,15 +287,11 @@ class CStateItem {
 
   public:
     //bGready always true here
-    inline void computeNextScore(Graph *cg, const vector<CAction>& acs, bool bGreedy) {
-        if (_bStart || bGreedy) {
-            _nextscores.forward(cg, acs, _atomFeat, NULL);
-        } else {
-            _nextscores.forward(cg, acs, _atomFeat, _score);
-        }
+    inline void computeNextScore(Graph *cg, const vector<CAction>& acs) {
+        _nextscores.forward(cg, acs, _atomFeat, NULL);
     }
 
-    inline void prepare(HyperParams* hyper_params, ModelParams* model_params, GlobalNodes* global_nodes) {
+    inline void prepare(HyperParams* hyper_params, GlobalNodes* global_nodes) {
         _atomFeat.str_word = _word;
         _atomFeat.str_tag = hyper_params->postags.getTagName(_tag);
         int word_length = _next_index - _wstart;
